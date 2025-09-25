@@ -28,7 +28,7 @@ spec:
     spec:
       containers:
         - name: nextjs-frontend
-          image: tienphatng237/nextjs-frontend:v1
+          image: tienphatng237/nextjs-frontend:v2
           ports:
             - containerPort: 3000
           env:
