@@ -7,9 +7,8 @@ spec:
   selector:
     app: author-service
   ports:
-    - port: 8085
-      targetPort: 8085
-      name: http
+    - port: 8081
+      targetPort: 8081
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -30,10 +29,39 @@ spec:
         - name: author-service
           image: tienphatng237/author-service:v1
           ports:
-            - containerPort: 8085
+            - containerPort: 8081
           env:
             - name: SPRING_PROFILES_ACTIVE
               valueFrom:
                 configMapKeyRef:
                   name: spring-common-env
                   key: SPRING_PROFILES_ACTIVE
+            - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+              valueFrom:
+                configMapKeyRef:
+                  name: spring-common-env
+                  key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+            - name: SPRING_CONFIG_IMPORT
+              valueFrom:
+                configMapKeyRef:
+                  name: spring-common-env
+                  key: CONFIG_SERVER
+            - name: SPRING_R2DBC_URL
+              value: r2dbc:postgresql://postgres-author:5432/authordb
+            - name: SPRING_R2DBC_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-author-secret
+                  key: POSTGRES_USER
+            - name: SPRING_R2DBC_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-author-secret
+                  key: POSTGRES_PASSWORD
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
