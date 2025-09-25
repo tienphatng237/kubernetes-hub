@@ -9,7 +9,6 @@ spec:
   ports:
     - port: 8083
       targetPort: 8083
-      name: http
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -37,3 +36,32 @@ spec:
                 configMapKeyRef:
                   name: spring-common-env
                   key: SPRING_PROFILES_ACTIVE
+            - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+              valueFrom:
+                configMapKeyRef:
+                  name: spring-common-env
+                  key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+            - name: SPRING_CONFIG_IMPORT
+              valueFrom:
+                configMapKeyRef:
+                  name: spring-common-env
+                  key: CONFIG_SERVER
+            - name: SPRING_R2DBC_URL
+              value: r2dbc:postgresql://postgres-stock-check:5432/stockdb
+            - name: SPRING_R2DBC_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-stock-secret
+                  key: POSTGRES_USER
+            - name: SPRING_R2DBC_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-stock-secret
+                  key: POSTGRES_PASSWORD
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
