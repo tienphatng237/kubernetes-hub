@@ -7,21 +7,19 @@ spec:
   selector:
     app: postgres-author
   ports:
-    - name: pg
-      port: 5433
-      targetPort: 5433
+    - port: 5432
+      targetPort: 5432
 ---
 apiVersion: apps/v1
-kind: StatefulSet
+kind: Deployment
 metadata:
   name: postgres-author
   namespace: bookstore
 spec:
+  replicas: 2
   selector:
     matchLabels:
       app: postgres-author
-  serviceName: postgres-author
-  replicas: 1
   template:
     metadata:
       labels:
@@ -29,32 +27,16 @@ spec:
     spec:
       containers:
         - name: postgres
-          image: postgres:15
-          env:
-            - name: POSTGRES_DB
-              value: author_service
-            - name: POSTGRES_USER
-              valueFrom:
-                secretKeyRef:
-                  name: postgres-secrets
-                  key: POSTGRES_USER
-            - name: POSTGRES_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: postgres-secrets
-                  key: POSTGRES_PASSWORD
-          args: ["-p", "5433"]
+          image: postgres:13
           ports:
-            - containerPort: 5433
-              name: pg
-          volumeMounts:
-            - name: data
-              mountPath: /var/lib/postgresql/data
-  volumeClaimTemplates:
-    - metadata:
-        name: data
-      spec:
-        accessModes: ["ReadWriteOnce"]
-        resources:
-          requests:
-            storage: 5Gi
+            - containerPort: 5432
+          envFrom:
+            - secretRef:
+                name: postgres-author-secret
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
