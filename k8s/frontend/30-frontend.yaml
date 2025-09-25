@@ -37,3 +37,10 @@ spec:
                 configMapKeyRef:
                   name: spring-common-env
                   key: NEXT_PUBLIC_API_URL
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
