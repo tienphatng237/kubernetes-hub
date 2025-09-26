@@ -3,13 +3,15 @@ kind: Service
 metadata:
   name: postgres-order
   namespace: bookstore
+  labels:
+    app: postgres-order
 spec:
+  clusterIP: None
   selector:
     app: postgres-order
   ports:
-    - name: pg
-      port: 5431
-      targetPort: 5431
+    - port: 5432
+      targetPort: 5432
 ---
 apiVersion: apps/v1
 kind: StatefulSet
@@ -17,11 +19,11 @@ metadata:
   name: postgres-order
   namespace: bookstore
 spec:
+  serviceName: postgres-order
+  replicas: 1
   selector:
     matchLabels:
       app: postgres-order
-  serviceName: postgres-order
-  replicas: 1
   template:
     metadata:
       labels:
@@ -29,32 +31,28 @@ spec:
     spec:
       containers:
         - name: postgres
-          image: postgres:15
-          env:
-            - name: POSTGRES_DB
-              value: order_service
-            - name: POSTGRES_USER
-              valueFrom:
-                secretKeyRef:
-                  name: postgres-secrets
-                  key: POSTGRES_USER
-            - name: POSTGRES_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: postgres-secrets
-                  key: POSTGRES_PASSWORD
-          args: ["-p", "5431"]
+          image: postgres:13
           ports:
-            - containerPort: 5431
-              name: pg
+            - containerPort: 5432
+          envFrom:
+            - secretRef:
+                name: postgres-order-secret
           volumeMounts:
             - name: data
               mountPath: /var/lib/postgresql/data
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
   volumeClaimTemplates:
     - metadata:
         name: data
       spec:
-        accessModes: ["ReadWriteOnce"]
+        accessModes: [ "ReadWriteOnce" ]
+        storageClassName: "gp3"
         resources:
           requests:
             storage: 5Gi
