@@ -17,6 +17,62 @@ The stack includes:
 
 ## 2. Architecture Diagram
 
+```mermaid 
+flowchart TB
+
+    %% Layer 1
+    Frontend[React Frontend]
+
+    %% Layer 2
+    Gateway[API Gateway]
+
+    %% Layer 3
+    subgraph Microservices
+        Book[Book Service]
+        Author[Author Service]
+        Order[Order Service]
+        Stock[Stock Check Service]
+        Message[Message Service]
+    end
+
+    %% Layer 4 - Databases
+    subgraph Databases
+        Mongo[MongoDB]
+        PgAuthor[Postgres - Author]
+        PgBook[Postgres - Book]
+        PgOrder[Postgres - Order]
+        PgStock[Postgres - Stock]
+    end
+
+    %% Layer 4 - Messaging
+    subgraph Messaging
+        Kafka[Kafka]
+        Zookeeper[Zookeeper]
+    end
+
+    %% Core Services (support)
+    Eureka[Eureka Discovery]
+    Config[Config Server]
+
+    %% Connections
+    Frontend --> Gateway
+    Gateway --> Book
+    Gateway --> Author
+    Gateway --> Order
+    Gateway --> Stock
+    Gateway --> Message
+
+    Book --> PgBook
+    Author --> PgAuthor
+    Order --> PgOrder
+    Stock --> PgStock
+    Message --> Kafka
+    Kafka <--> Zookeeper
+
+    Microservices --> Eureka
+    Microservices --> Config
+
+```
 
 ------------------------------------------------------------------------
 
