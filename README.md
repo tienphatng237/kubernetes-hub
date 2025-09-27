@@ -1,46 +1,51 @@
-# Spring Microservices Bookstore – Kubernetes Manifests
+# Kubernetes Spring Microservices -- Manifests
 
-This repository contains the Kubernetes manifests to deploy the **Spring Microservices Bookstore** application with databases, messaging, monitoring, and ingress.
+## 1. Overview
 
-## Folder Structure
+This project provides **Kubernetes manifests** to deploy a **Spring Boot
+Bookstore microservices application** with databases, messaging, service
+discovery, API gateway, and frontend.
 
-```
-k8s/
-├── base/                # Namespace, ConfigMap, Secrets
-├── core-services/       # Eureka, Config Server, API Gateway
-├── databases/           # Databases (Postgres + MongoDB)
-├── frontend/
-├── messaging/           # Kafka + Zookeeper
-├── microservices/       # Business services
-├── networking/
-└── README.md
-```
+The stack includes: 
+- **Core Services**: Eureka Discovery, Config Server, API Gateway
+- **Databases**: PostgreSQL (per service), MongoDB
+- **Messaging**: Kafka + Zookeeper
+- **Microservices**: Book, Author, Order, Stock, Message
+- **Frontend**: React application exposed via Ingress
 
-## Deployment Order
+------------------------------------------------------------------------
 
-```sh
+## 2. Architecture Diagram
+
+
+------------------------------------------------------------------------
+
+## 3. Deployment
+
+### Apply manifests in order
+
+``` bash
 kubectl apply -f k8s/base/
 kubectl apply -f k8s/databases/
 kubectl apply -f k8s/messaging/
-kubectl apply -f k8s/monitoring/
 kubectl apply -f k8s/core-services/
 kubectl apply -f k8s/microservices/
 kubectl apply -f k8s/frontend/
 kubectl apply -f k8s/networking/
 ```
 
-## Exposed Endpoints
+(Optional: `kubectl apply -f k8s/monitoring/` if monitoring stack is
+included.)
 
-| Service                | URL                                     |
-|-------------------------|-----------------------------------------|
-| Frontend (Next.js)     | https://tienphatng237.it.com            |
-| API Gateway            | https://api.tienphatng237.it.com        |
-| Eureka (Discovery)     | https://eureka.tienphatng237.it.com     |
-| Config Server          | https://config.tienphatng237.it.com     |
+### Verify pods
 
-## Notes
+``` bash
+kubectl get pods -A
+```
 
-- Databases (Postgres + MongoDB) use **PVCs** for persistent storage.
-- Secrets and ConfigMaps are defined in `base/01-config-and-secrets.yaml`.
-- Update DNS records of your domain to point to the Kubernetes Ingress Controller.
-- Docker images must be pushed to Docker Hub under `tienphatng237/*:v1`.
+### Access via Ingress
+
+Ingress exposes the frontend and API Gateway. Update `/etc/hosts` or
+configure LoadBalancer to access externally.
+
+------------------------------------------------------------------------
